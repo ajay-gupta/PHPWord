@@ -161,6 +161,8 @@ abstract class AbstractPart
                 }
             }
             $parent->addTitle($textContent, $headingDepth);
+        } elseif ($domNode->nodeName === 'w:sdtContent') {
+            $parent->addText($domNode->nodeValue, $paragraphStyle);
         } else {
             // Text and TextRun
             $textRunContainers = $xmlReader->countElements('w:r|w:ins|w:del|w:hyperlink|w:smartTag', $domNode);
@@ -375,6 +377,12 @@ abstract class AbstractPart
                             if ('w:p' == $cellNode->nodeName) { // Paragraph
                                 $this->readParagraph($xmlReader, $cellNode, $cell, $docPart);
                             }
+                        }
+                    } elseif ('w:sdt' == $rowNode->nodeName) { // Cell
+                        $cell = $row->addCell();
+                        $cellNodes = $xmlReader->getElements('w:sdtContent', $rowNode);
+                        foreach ($cellNodes as $cellNode) {
+                            $this->readParagraph($xmlReader, $cellNode, $cell, $docPart);
                         }
                     }
                 }
