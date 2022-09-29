@@ -169,10 +169,16 @@ abstract class AbstractPart
             if (0 === $textRunContainers) {
                 $parent->addTextBreak(null, $paragraphStyle);
             } else {
-                $nodes = $xmlReader->getElements('*', $domNode);
-                $paragraph = $parent->addTextRun($paragraphStyle);
-                foreach ($nodes as $node) {
-                    $this->readRun($xmlReader, $node, $paragraph, $docPart, $paragraphStyle);
+                if($xmlReader->countElements('w:rPr', $domNode->firstElementChild)) {
+                    $nodes = $xmlReader->getElements('*', $domNode);
+                    $paragraph = $parent->addTextRun($paragraphStyle);
+                    foreach ($nodes as $node) {
+                        $this->readRun($xmlReader, $node, $paragraph, $docPart, $paragraphStyle);
+                    }
+                }else{
+                    $fontStyle = $this->readFontStyle($xmlReader, $domNode);
+                    $textContent = htmlspecialchars($domNode->nodeValue, ENT_QUOTES, 'UTF-8');
+                    $parent->addText($textContent, $fontStyle, $paragraphStyle);
                 }
             }
         }
